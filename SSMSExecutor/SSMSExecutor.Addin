@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<Extensibility xmlns="http://schemas.microsoft.com/AutomationExtensibility">
+    <HostApplication>
+        <Name>Microsoft SQL Server Management Studio</Name>
+        <Version>*</Version>
+    </HostApplication>
+    <Addin>
+        <FriendlyName>SSMSExecutor</FriendlyName>
+        <Description>Add-in for SQL Server Management Studio Execute Current Statement.</Description>
+        <AboutBoxDetails>https://ssmsexecutor.codeplex.com/</AboutBoxDetails>
+        <Assembly></Assembly>
+        <FullClassName>SSMSExecutor.Connect</FullClassName>
+        <LoadBehavior>1</LoadBehavior>
+        <CommandPreload>1</CommandPreload>
+        <CommandLineSafe>0</CommandLineSafe>
+    </Addin>
+</Extensibility>
