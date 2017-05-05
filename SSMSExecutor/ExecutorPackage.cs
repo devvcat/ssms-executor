@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.Design;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
+//using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using Microsoft.VisualStudio;
@@ -11,14 +11,14 @@ using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.Win32;
 using Microsoft.SqlServer.Management;
 
-namespace VSIXProject2
+namespace Devvcat.SSMS
 {
     [PackageRegistration(UseManagedResourcesOnly = true)]
     [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)] // Info on this package for Help/About
     [ProvideAutoLoad(VSConstants.UICONTEXT.EmptySolution_string)]
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [Guid(ExecutorPackage.PackageGuidString)]
-    [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
+    //[SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
     public sealed class ExecutorPackage : SqlPackage
     {
         public const string PackageGuidString = "a64d9865-b938-4543-bf8f-a553cc4f67f3";

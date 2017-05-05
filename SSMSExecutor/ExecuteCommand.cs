@@ -6,9 +6,8 @@ using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.SqlServer.Management.UI.VSIntegration;
 
 using EnvDTE;
-using EnvDTE80;
 
-namespace VSIXProject2
+namespace Devvcat.SSMS
 {
     /// <summary>
     /// Command handler
@@ -22,12 +21,7 @@ namespace VSIXProject2
 
         private ExecutorCommand(Package package)
         {
-            if (package == null)
-            {
-                throw new ArgumentNullException("package");
-            }
-
-            this.package = package;
+            this.package = package ?? throw new ArgumentNullException("package");
 
             OleMenuCommandService commandService = this.ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
             if (commandService != null)
@@ -47,13 +41,7 @@ namespace VSIXProject2
             private set;
         }
 
-        private IServiceProvider ServiceProvider
-        {
-            get
-            {
-                return this.package;
-            }
-        }
+        private IServiceProvider ServiceProvider => this.package;
 
         public static void Initialize(Package package)
         {
@@ -71,7 +59,7 @@ namespace VSIXProject2
 
                 if (ServiceCache.ExtensibilityModel.ActiveDocument != null)
                 {
-                    var doc = (ServiceCache.ExtensibilityModel.ActiveDocument.DTE as DTE2).ActiveDocument;
+                    var doc = (ServiceCache.ExtensibilityModel.ActiveDocument.DTE as DTE).ActiveDocument;
 
                     if (doc != null)
                     {

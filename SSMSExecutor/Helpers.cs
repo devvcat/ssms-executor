@@ -1,12 +1,11 @@
-﻿using EnvDTE80;
-using Microsoft.SqlServer.Management.UI.VSIntegration;
+﻿using Microsoft.SqlServer.Management.UI.VSIntegration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VSIXProject2
+namespace Devvcat.SSMS
 {
     public static class Helpers
     {

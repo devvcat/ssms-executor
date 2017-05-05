@@ -9,7 +9,7 @@ using Microsoft.SqlServer.TransactSql.ScriptDom;
 //using Microsoft.Data.Schema.ScriptDom.Sql;
 
 
-namespace VSIXProject2
+namespace Devvcat.SSMS
 {
     public class Executor
     {
