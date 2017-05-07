@@ -11,7 +11,7 @@ using Microsoft.SqlServer.TransactSql.ScriptDom;
 
 namespace Devvcat.SSMS
 {
-    public class Executor
+    sealed class Executor
     {
         public readonly string CMD_QUERY_EXECUTE = "Query.Execute";
 
@@ -22,21 +22,16 @@ namespace Devvcat.SSMS
 
         public Executor(EnvDTE.Document document)
         {
-            if (document == null)
-            {
-                throw new ArgumentNullException("EnvDTE.TextDocument");
-            }
-
-            this.document = document;
+            this.document = document ?? throw new ArgumentNullException(nameof(document));
 
             var selection = (EnvDTE.TextSelection)this.document.Selection;
-            this.oldAnchor = selection.AnchorPoint.CreateEditPoint();
-            this.oldActivePoint = selection.ActivePoint.CreateEditPoint();
+            oldAnchor = selection.AnchorPoint.CreateEditPoint();
+            oldActivePoint = selection.ActivePoint.CreateEditPoint();
         }
 
         private CaretPosition GetCaretPosition()
         {
-            var anchor = ((EnvDTE.TextSelection)this.document.Selection).ActivePoint;
+            var anchor = ((EnvDTE.TextSelection)document.Selection).ActivePoint;
 
             return new CaretPosition
             {
@@ -48,7 +43,7 @@ namespace Devvcat.SSMS
         private string GetDocumentContent()
         {
             var content = string.Empty;
-            var selection = (EnvDTE.TextSelection)this.document.Selection;
+            var selection = (EnvDTE.TextSelection)document.Selection;
 
             if (!selection.IsEmpty)
             {
@@ -60,9 +55,9 @@ namespace Devvcat.SSMS
                 content = selection.Text;
 
                 // restore selection
-                selection.MoveToAbsoluteOffset(this.oldAnchor.AbsoluteCharOffset);
+                selection.MoveToAbsoluteOffset(oldAnchor.AbsoluteCharOffset);
                 selection.SwapAnchor();
-                selection.MoveToAbsoluteOffset(this.oldActivePoint.AbsoluteCharOffset, true);
+                selection.MoveToAbsoluteOffset(oldActivePoint.AbsoluteCharOffset, true);
             }
 
             return content;
@@ -70,7 +65,7 @@ namespace Devvcat.SSMS
 
         private void MakeSelection(CaretPosition topPoint, CaretPosition bottomPoint)
         {
-            var selection = (EnvDTE.TextSelection)this.document.Selection;
+            var selection = (EnvDTE.TextSelection)document.Selection;
 
             selection.MoveToLineAndOffset(topPoint.Line, topPoint.LineCharOffset);
             selection.SwapAnchor();
@@ -106,20 +101,20 @@ namespace Devvcat.SSMS
 
                     if (!(isBeforeFirstToken || isAfterLastToken))
                     {
-                        var currentStatement = new CaretCurrentStatement();
-
-                        currentStatement.FirstToken = new CaretPosition
+                        var currentStatement = new CaretCurrentStatement()
                         {
-                            Line = ft.Line,
-                            LineCharOffset = ft.Column
-                        };
+                            FirstToken = new CaretPosition
+                            {
+                                Line = ft.Line,
+                                LineCharOffset = ft.Column
+                            },
 
-                        currentStatement.LastToken = new CaretPosition
-                        {
-                            Line = lt.Line,
-                            LineCharOffset = lt.Column + lt.Text.Length
+                            LastToken = new CaretPosition
+                            {
+                                Line = lt.Line,
+                                LineCharOffset = lt.Column + lt.Text.Length
+                            }
                         };
-
                         return currentStatement;
                     }
                 }
@@ -130,14 +125,14 @@ namespace Devvcat.SSMS
 
         private void Exec()
         {
-            this.document.DTE.ExecuteCommand(CMD_QUERY_EXECUTE);
+            document.DTE.ExecuteCommand(CMD_QUERY_EXECUTE);
         }
 
         private bool CanExecute()
         {
             try
             {
-                var cmd = this.document.DTE.Commands.Item(CMD_QUERY_EXECUTE, -1);
+                var cmd = document.DTE.Commands.Item(CMD_QUERY_EXECUTE, -1);
                 return cmd.IsAvailable;
             }
             catch
@@ -162,8 +157,7 @@ namespace Devvcat.SSMS
                 var caret = GetCaretPosition();
                 var script = GetDocumentContent();
 
-                StatementList statementList = null;
-                if (ParseStatements(script, out statementList))
+                if (ParseStatements(script, out StatementList statementList))
                 {
                     var currentStatement = FindCurrentStatement(statementList, caret);
 

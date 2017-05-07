@@ -1,39 +1,47 @@
 ﻿using System;
 using System.ComponentModel.Design;
-using System.Globalization;
-using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
-using Microsoft.SqlServer.Management.UI.VSIntegration;
+using System.Diagnostics;
 
 using EnvDTE;
+using EnvDTE80;
+using Microsoft.VisualStudio.Shell;
 
 namespace Devvcat.SSMS
 {
     /// <summary>
     /// Command handler
     /// </summary>
-    internal sealed class ExecutorCommand
+    sealed class ExecutorCommand
     {
         public const int CommandId = 0x0100;
         public static readonly Guid CommandSet = new Guid("746c2fb4-20a2-4d26-b95d-f8db97c16875");
 
-        private readonly Package package;
+        readonly Package package;
+        readonly DTE2 dte;
 
-        private ExecutorCommand(Package package)
+        private ExecutorCommand(Package package, DTE2 dte)
         {
-            this.package = package ?? throw new ArgumentNullException("package");
+            this.package = package ?? throw new ArgumentNullException(nameof(package));
+            this.dte = dte;
 
-            OleMenuCommandService commandService = this.ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
-            if (commandService != null)
+            if (ServiceProvider.GetService(typeof(IMenuCommandService)) is OleMenuCommandService commandService)
             {
+                Trace.TraceInformation("Create the 'Executor' command.");
+
                 var menuCommandID = new CommandID(CommandSet, CommandId);
-                var menuItem = new OleMenuCommand(this.Command_Exec, menuCommandID);
+                var menuItem = new OleMenuCommand(Command_Exec, menuCommandID);
 
                 menuItem.BeforeQueryStatus += Command_QueryStatus;
 
                 commandService.AddCommand(menuItem);
             }
+            else
+            {
+                Trace.TraceWarning("Failed to find 'MenuCommandService'.");
+            }
         }
+
+        private IServiceProvider ServiceProvider => package;
 
         public static ExecutorCommand Instance
         {
@@ -41,43 +49,46 @@ namespace Devvcat.SSMS
             private set;
         }
 
-        private IServiceProvider ServiceProvider => this.package;
-
-        public static void Initialize(Package package)
+        public static void Initialize(Package package, DTE2 dte)
         {
-            Instance = new ExecutorCommand(package);
+            Trace.TraceInformation("Create 'ExecutorCommand' instance");
+            Instance = new ExecutorCommand(package, dte);
+        }
+
+        bool HasActiveDocument()
+        {
+            if (dte.ActiveDocument !=null)
+            {
+                var doc = (dte.ActiveDocument.DTE)?.ActiveDocument;
+                return doc != null;
+            }
+
+            return false;
         }
 
         private void Command_QueryStatus(object sender, EventArgs e)
         {
-            var menuCommand = sender as OleMenuCommand;
-
-            if (menuCommand != null)
+            if (sender is OleMenuCommand menuCommand)
             {
                 menuCommand.Enabled = false;
                 menuCommand.Supported = false;
 
-                if (ServiceCache.ExtensibilityModel.ActiveDocument != null)
+                if (dte.HasActiveDocument())
                 {
-                    var doc = (ServiceCache.ExtensibilityModel.ActiveDocument.DTE as DTE).ActiveDocument;
-
-                    if (doc != null)
-                    {
-                        menuCommand.Enabled = true;
-                        menuCommand.Supported = true;
-                    }
+                    menuCommand.Enabled = true;
+                    menuCommand.Supported = true;
                 }
             }
         }
 
         private void Command_Exec(object sender, EventArgs e)
         {
-            EnvDTE.Document document = Helpers.TextDocument();
+            Document document = dte.GetDocument();
 
             if (document != null)
             {
                 var executor = new Executor(document);
-
+                
                 executor.ExecuteCurrentStatement();
             }
         }

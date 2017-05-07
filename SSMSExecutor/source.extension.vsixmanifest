@@ -6,7 +6,7 @@
     <Description xml:space="preserve">SSMS Executor is a SQL Server Management Studio Add-in for executing the current statement, based on the cursor position.</Description>
     <MoreInfo>http://devvcat.com</MoreInfo>
   </Metadata>
-  <Installation>
+  <Installation InstalledByMsi="true">
     <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[14.0,15.0]" />
     <InstallationTarget Version="[14.0,15.0)" Id="Microsoft.VisualStudio.IntegratedShell" />
   </Installation>
