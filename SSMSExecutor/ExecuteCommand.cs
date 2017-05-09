@@ -31,7 +31,7 @@ namespace Devvcat.SSMS
                 var menuCommandID = new CommandID(CommandSet, CommandId);
                 var menuItem = new OleMenuCommand(Command_Exec, menuCommandID);
 
-                menuItem.BeforeQueryStatus += Command_QueryStatus;
+                //menuItem.BeforeQueryStatus += Command_QueryStatus;
 
                 commandService.AddCommand(menuItem);
             }

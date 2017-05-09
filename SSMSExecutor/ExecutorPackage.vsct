@@ -55,7 +55,8 @@
       <Button guid="guidExecutorPackageCmdSet" id="Command1Id" priority="0x0100" type="Button">
         <Parent guid="guidExecutorPackageCmdSet" id="MyMenuGroup" />
         <Icon guid="guidImages" id="bmpPic2" />
-        <CommandFlag>DefaultDisabled</CommandFlag>
+        <!--<CommandFlag>DefaultDisabled</CommandFlag>
+        <CommandFlag>DynamicItemStart</CommandFlag>-->
         <Strings>
           <CommandName>Execute Statement</CommandName>
           <ToolTipText>Execute Current Statement</ToolTipText>

@@ -18,7 +18,7 @@ using EnvDTE;
 
 namespace Devvcat.SSMS
 {
-    [Guid(ExecutorPackage.PackageGuidString)]
+    [Guid(PackageGuidString)]
     [PackageRegistration(UseManagedResourcesOnly = true)]
     [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)] // Info on this package for Help/About
     [ProvideAutoLoad(VSConstants.UICONTEXT.ShellInitialized_string)]
@@ -27,7 +27,7 @@ namespace Devvcat.SSMS
     {
         public const string PackageGuidString = "a64d9865-b938-4543-bf8f-a553cc4f67f3";
 
-        static ExecutorPackage()
+        public ExecutorPackage()
         {
             var path = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
@@ -46,6 +46,7 @@ namespace Devvcat.SSMS
 #endif
 
             Trace.AutoFlush = true;
+            Trace.TraceInformation("Entering constructor for {0}", ToString());
         }
 
         protected override void Initialize()
@@ -60,7 +61,7 @@ namespace Devvcat.SSMS
 
         protected override int QueryClose(out bool canClose)
         {
-            SetSkipLoading();
+            //SetSkipLoading();
 
             return base.QueryClose(out canClose);
         }

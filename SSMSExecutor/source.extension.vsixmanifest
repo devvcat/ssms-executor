@@ -5,10 +5,12 @@
     <DisplayName>SSMS Executor</DisplayName>
     <Description xml:space="preserve">SSMS Executor is a SQL Server Management Studio Add-in for executing the current statement, based on the cursor position.</Description>
     <MoreInfo>http://devvcat.com</MoreInfo>
+    <Tags>ssms</Tags>
   </Metadata>
   <Installation InstalledByMsi="true">
-    <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[14.0,15.0]" />
-    <InstallationTarget Version="[14.0,15.0)" Id="Microsoft.VisualStudio.IntegratedShell" />
+    <!--<InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[14.0,15.0]" />
+    <InstallationTarget Version="[14.0,15.0)" Id="Microsoft.VisualStudio.IntegratedShell" />-->
+    <InstallationTarget Version="[13.0,15.0)" Id="ssms" />
   </Installation>
   <Dependencies>
     <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="[4.5,)" />
@@ -16,6 +18,8 @@
   </Dependencies>
   <Assets>
     <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%;PkgdefProjectOutputGroup|" />
-    <Asset Type="Microsoft.VisualStudio.ToolboxControl" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%;PkgdefProjectOutputGroup|" />
   </Assets>
+  <Prerequisites>
+    <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[11.0,16.0)" DisplayName="Visual Studio core editor" />
+  </Prerequisites>
 </PackageManifest>
