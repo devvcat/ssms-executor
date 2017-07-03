@@ -40,7 +40,7 @@
         <Parent guid="guidSHLMainMenu" id="IDM_VS_TOOL_STANDARD" />
       </Group>
     </Groups>
-
+    
     <!--Buttons section. -->
     <!--This section defines the elements the user can interact with, like a menu command or a button
         or combo box in a toolbar. -->
@@ -52,11 +52,10 @@
               <CommandFlag>DefaultInvisible</CommandFlag>
               <CommandFlag>DynamicVisibility</CommandFlag>
           If you do not want an image next to your command, remove the Icon node /> -->
-      <Button guid="guidExecutorPackageCmdSet" id="Command1Id" priority="0x0100" type="Button">
+      <Button guid="guidExecutorPackageCmdSet" id="cmdidExecutorCommand" priority="0x0100" type="Button">
         <Parent guid="guidExecutorPackageCmdSet" id="MyMenuGroup" />
         <Icon guid="guidImages" id="bmpPic2" />
-        <!--<CommandFlag>DefaultDisabled</CommandFlag>
-        <CommandFlag>DynamicItemStart</CommandFlag>-->
+        <CommandFlag>DefaultDisabled</CommandFlag>
         <Strings>
           <CommandName>Execute Statement</CommandName>
           <ToolTipText>Execute Current Statement</ToolTipText>
@@ -77,21 +76,20 @@
   </Commands>
 
   <KeyBindings>
-    <KeyBinding guid="guidExecutorPackageCmdSet" id="Command1Id" editor="guidSqlQueryEditor" mod1="CONTROL SHIFT" key1="E" />
+    <KeyBinding guid="guidExecutorPackageCmdSet" id="cmdidExecutorCommand" editor="guidSqlQueryEditor" mod1="CONTROL SHIFT" key1="E" />
   </KeyBindings>
-    
+
   <Symbols>
     <!-- This is the package guid. -->
     <GuidSymbol name="guidExecutorPackage" value="{a64d9865-b938-4543-bf8f-a553cc4f67f3}" />
 
-    <!-- This is the guid used to group the menu commands together -->
     <GuidSymbol name="guidExecutorPackageCmdSet" value="{746c2fb4-20a2-4d26-b95d-f8db97c16875}">
       <IDSymbol name="MyMenuGroup" value="0x1020" />
-      <IDSymbol name="Command1Id" value="0x0100" />
+      <IDSymbol name="cmdidExecutorCommand" value="0x0100" />
     </GuidSymbol>
-
+    
     <GuidSymbol name="guidSqlQueryEditor" value="{B5A506EB-11BE-4782-9A18-21265C2CA0B4}" />
-      
+
     <GuidSymbol name="guidImages" value="{f5b57155-c84e-4bd1-812e-ed8512800bfd}">
       <IDSymbol name="bmpPic1" value="1" />
       <IDSymbol name="bmpPic2" value="2" />

@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26403.3
+VisualStudioVersion = 15.0.26430.6
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SSMSExecutor", "SSMSExecutor\SSMSExecutor.csproj", "{1EF94508-8862-404B-B561-A32D86A8FF0C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SSMSExecutor", "SSMSExecutor\SSMSExecutor.csproj", "{B8CA7C7C-2A27-46B4-899F-BF5999E3D3A1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -12,12 +12,12 @@ Global
 		VS-Debug|Any CPU = VS-Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1EF94508-8862-404B-B561-A32D86A8FF0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1EF94508-8862-404B-B561-A32D86A8FF0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1EF94508-8862-404B-B561-A32D86A8FF0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1EF94508-8862-404B-B561-A32D86A8FF0C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1EF94508-8862-404B-B561-A32D86A8FF0C}.VS-Debug|Any CPU.ActiveCfg = VS-Debug|Any CPU
-		{1EF94508-8862-404B-B561-A32D86A8FF0C}.VS-Debug|Any CPU.Build.0 = VS-Debug|Any CPU
+		{B8CA7C7C-2A27-46B4-899F-BF5999E3D3A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8CA7C7C-2A27-46B4-899F-BF5999E3D3A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8CA7C7C-2A27-46B4-899F-BF5999E3D3A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8CA7C7C-2A27-46B4-899F-BF5999E3D3A1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B8CA7C7C-2A27-46B4-899F-BF5999E3D3A1}.VS-Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8CA7C7C-2A27-46B4-899F-BF5999E3D3A1}.VS-Debug|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
