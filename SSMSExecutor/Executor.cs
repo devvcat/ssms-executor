@@ -72,27 +72,27 @@ namespace Devvcat.SSMS
             selection.MoveToLineAndOffset(bottomPoint.Line, bottomPoint.LineCharOffset, true);
         }
 
-        private bool ParseStatements(string script, out StatementList statementList)
+        private bool ParseSqlFragments(string script, out TSqlScript sqlFragments)
         {
             IList<ParseError> errors;
-            TSql100Parser parser = new TSql100Parser(true);
+            TSql140Parser parser = new TSql140Parser(true);
 
             using (System.IO.StringReader reader = new System.IO.StringReader(script))
             {
-                statementList = parser.ParseStatementList(reader, out errors);
+                sqlFragments = parser.Parse(reader, out errors) as TSqlScript;
             }
 
             return errors.Count == 0;
         }
 
-        private CaretCurrentStatement FindCurrentStatement(StatementList statementList, CaretPosition caret)
+        private CaretCurrentStatement FindCurrentStatement(IList<TSqlStatement> statements, CaretPosition caret)
         {
-            if (statementList == null) return null;
+            if (statements == null || statements.Count == 0) return null;
 
-            foreach (var statement in statementList.Statements)
+            foreach (var statement in statements)
             {
-                var ft = statementList.ScriptTokenStream[statement.FirstTokenIndex];
-                var lt = statementList.ScriptTokenStream[statement.LastTokenIndex];
+                var ft = statement.ScriptTokenStream[statement.FirstTokenIndex];
+                var lt = statement.ScriptTokenStream[statement.LastTokenIndex];
 
                 if (caret.Line >= ft.Line && caret.Line <= lt.Line)
                 {
@@ -157,10 +157,24 @@ namespace Devvcat.SSMS
                 var caret = GetCaretPosition();
                 var script = GetDocumentContent();
 
-                if (ParseStatements(script, out StatementList statementList))
-                {
-                    var currentStatement = FindCurrentStatement(statementList, caret);
+                CaretCurrentStatement currentStatement = null;
+                bool success = ParseSqlFragments(script, out TSqlScript sqlScript);
 
+                if (success)
+                {
+                    foreach (var batch in sqlScript?.Batches)
+                    {
+                        currentStatement = FindCurrentStatement(batch.Statements, caret);
+
+                        if (currentStatement != null)
+                        {
+                            break;
+                        }
+                    }
+                }
+
+                if (success)
+                {
                     if (currentStatement != null)
                     {
                         // select the statement to be executed

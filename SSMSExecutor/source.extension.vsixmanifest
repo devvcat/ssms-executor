@@ -1,27 +1,27 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
-  <Metadata>
-    <Identity Id="SSMSExecutor.17e8fa63-4183-460e-8840-f8b2293f545c" Version="2.0.1" Language="en-US" Publisher="Stanislav Stoyanov" />
-    <DisplayName>SSMS Executor</DisplayName>
-    <Description xml:space="preserve">SSMS Executor is a SQL Server Management Studio Add-in for executing the current statement, based on the cursor position.</Description>
-    <MoreInfo>https://github.com/devvcat/ssms-executor</MoreInfo>
-    <License>Resources\license.txt</License>
-    <GettingStartedGuide>https://github.com/devvcat/ssms-executor/wiki</GettingStartedGuide>
-    <ReleaseNotes>https://github.com/devvcat/ssms-executor/wiki/Release-notes</ReleaseNotes>
-    <Icon>Resources\Command1Package.ico</Icon>
-    <Tags>ssms</Tags>
-  </Metadata>
-  <Installation AllUsers="true">
-    <InstallationTarget Id="ssms" Version="[13.0,15.0)" />
-  </Installation>
-  <Dependencies>
-    <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="[4.5,)" />
-    <Dependency Id="Microsoft.VisualStudio.MPF.14.0" DisplayName="Visual Studio MPF 14.0" d:Source="Installed" Version="[14.0]" />
-  </Dependencies>
-  <Assets>
-    <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%;PkgdefProjectOutputGroup|" />
-  </Assets>
-  <Prerequisites>
-    <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[11.0,16.0)" DisplayName="Visual Studio core editor" />
-  </Prerequisites>
+    <Metadata>
+        <Identity Id="SSMSExecutor.17e8fa63-4183-460e-8840-f8b2293f545c" Version="2.0.2" Language="en-US" Publisher="Stanislav Stoyanov" />
+        <DisplayName>SSMS Executor</DisplayName>
+        <Description xml:space="preserve">SSMS Executor is a SQL Server Management Studio Add-in for executing the current statement, based on the cursor position.</Description>
+        <MoreInfo>https://github.com/devvcat/ssms-executor</MoreInfo>
+        <License>Resources\license.txt</License>
+        <GettingStartedGuide>https://github.com/devvcat/ssms-executor/wiki</GettingStartedGuide>
+        <ReleaseNotes>https://github.com/devvcat/ssms-executor/wiki/Release-notes</ReleaseNotes>
+        <Icon>Resources\Command1Package.ico</Icon>
+        <Tags>ssms</Tags>
+    </Metadata>
+    <Installation AllUsers="true">
+        <InstallationTarget Id="ssms" Version="[13.0,15.0)" />
+    </Installation>
+    <Dependencies>
+        <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="[4.5,)" />
+        <Dependency Id="Microsoft.VisualStudio.MPF.14.0" DisplayName="Visual Studio MPF 14.0" d:Source="Installed" Version="[14.0]" />
+    </Dependencies>
+    <Assets>
+        <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%;PkgdefProjectOutputGroup|" />
+    </Assets>
+    <Prerequisites>
+        <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[11.0,16.0)" DisplayName="Visual Studio core editor" />
+    </Prerequisites>
 </PackageManifest>
