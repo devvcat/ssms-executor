@@ -35,9 +35,9 @@
         <Icon guid="guidImages" id="bmpPic2" />
         <CommandFlag>DefaultDisabled</CommandFlag>
         <Strings>
-          <CommandName>SSMSExecutor.ExecuteInlineStatement</CommandName>
-          <ToolTipText>Execute Current Statement</ToolTipText>
-          <ButtonText>Execute Inline Statement</ButtonText>
+          <CommandName>SSMSExecutor.ExecuteInnerStatement</CommandName>
+          <ToolTipText>Execute Inner Statement</ToolTipText>
+          <ButtonText>Execute Inner Statement</ButtonText>
         </Strings>
       </Button>
       

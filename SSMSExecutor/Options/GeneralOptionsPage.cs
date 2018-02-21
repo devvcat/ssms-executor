@@ -13,21 +13,21 @@ namespace Devvcat.SSMS.Options
     internal class GeneralOptionsPage : DialogPage
     {
         [Category("Execute Options")]
-        [DisplayName("Execute inline statements")]
-        [Description("Execute inline statements instead of batch")]
+        [DisplayName("Execute inner statements")]
+        [Description("Execute inner statements instead of block")]
         [DefaultValue(false)]
-        public bool ExecuteInlineStatements { get; set; }
+        public bool ExecuteInnerStatements { get; set; }
 
         protected override void OnActivate(CancelEventArgs e)
         {
-            ExecuteInlineStatements = Properties.Settings.Default.ExecuteInlineStatements;
+            ExecuteInnerStatements = Properties.Settings.Default.ExecuteInnerStatements;
 
             base.OnActivate(e);
         }
 
         protected override void OnApply(PageApplyEventArgs e)
         {
-            Properties.Settings.Default.ExecuteInlineStatements = ExecuteInlineStatements;
+            Properties.Settings.Default.ExecuteInnerStatements = ExecuteInnerStatements;
             Properties.Settings.Default.Save();
 
             base.OnApply(e);

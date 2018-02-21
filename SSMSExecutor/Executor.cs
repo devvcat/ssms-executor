@@ -25,14 +25,14 @@ namespace Devvcat.SSMS
             SaveActiveAndAnchorPoints();
         }
 
-        private VirtualPoint GetCaretPosition()
+        private VirtualPoint GetCaretPoint()
         {
             var p = ((TextSelection)document.Selection).ActivePoint;
 
             return new VirtualPoint(p);
         }
 
-        private string GetDocumentContent()
+        private string GetDocumentText()
         {
             var content = string.Empty;
             var selection = (TextSelection)document.Selection;
@@ -90,38 +90,97 @@ namespace Devvcat.SSMS
             return errors.Count == 0;
         }
 
-        private TextBlock FindCurrentStatement(IList<TSqlStatement> statements, VirtualPoint caret)
+        private IList<TSqlStatement> GetInnerStatements(TSqlStatement statement)
         {
-            if (statements == null || statements.Count == 0) return null;
+            List<TSqlStatement> list = new List<TSqlStatement>();
+
+            if (statement is BeginEndBlockStatement block)
+            {
+                list.AddRange(block.StatementList.Statements);
+            }
+            else if (statement is IfStatement ifBlock)
+            {
+                if (ifBlock.ThenStatement != null)
+                {
+                    list.Add(ifBlock.ThenStatement);
+                }
+                if (ifBlock.ElseStatement != null)
+                {
+                    list.Add(ifBlock.ElseStatement);
+                }
+            }
+            else if (statement is WhileStatement whileBlock)
+            {
+                list.Add(whileBlock.Statement);
+            }
+
+            return list;
+        }
+
+        private bool IsCaretInsideStatement(TSqlStatement statement, VirtualPoint caret)
+        {
+            var ft = statement.ScriptTokenStream[statement.FirstTokenIndex];
+            var lt = statement.ScriptTokenStream[statement.LastTokenIndex];
+
+            if (caret.Line >= ft.Line && caret.Line <= lt.Line)
+            {
+                var isBeforeFirstToken = caret.Line == ft.Line && caret.LineCharOffset < ft.Column;
+                var isAfterLastToken = caret.Line == lt.Line && caret.LineCharOffset > lt.Column + lt.Text.Length;
+
+                if (!(isBeforeFirstToken || isAfterLastToken))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private TextBlock GetTextBlockFromStatement(TSqlStatement statement)
+        {
+            var ft = statement.ScriptTokenStream[statement.FirstTokenIndex];
+            var lt = statement.ScriptTokenStream[statement.LastTokenIndex];
+
+            return new TextBlock()
+            {
+                StartPoint = new VirtualPoint
+                {
+                    Line = ft.Line,
+                    LineCharOffset = ft.Column
+                },
+
+                EndPoint = new VirtualPoint
+                {
+                    Line = lt.Line,
+                    LineCharOffset = lt.Column + lt.Text.Length
+                }
+            };
+        }
+
+        private TextBlock FindCurrentStatement(IList<TSqlStatement> statements, VirtualPoint caret, ExecScope scope)
+        {
+            if (statements == null || statements.Count == 0)
+            {
+                return null;
+            }
 
             foreach (var statement in statements)
             {
-                var ft = statement.ScriptTokenStream[statement.FirstTokenIndex];
-                var lt = statement.ScriptTokenStream[statement.LastTokenIndex];
-
-                if (caret.Line >= ft.Line && caret.Line <= lt.Line)
+                if (scope == ExecScope.Inner)
                 {
-                    var isBeforeFirstToken = caret.Line == ft.Line && caret.LineCharOffset < ft.Column;
-                    var isAfterLastToken = caret.Line == lt.Line && caret.LineCharOffset > lt.Column + lt.Text.Length;
+                    IList<TSqlStatement> statementList = GetInnerStatements(statement);
 
-                    if (!(isBeforeFirstToken || isAfterLastToken))
+                    TextBlock currentStatement = FindCurrentStatement(statementList, caret, scope);
+
+                    if (currentStatement != null)
                     {
-                        var currentStatement = new TextBlock()
-                        {
-                            StartPoint = new VirtualPoint
-                            {
-                                Line = ft.Line,
-                                LineCharOffset = ft.Column
-                            },
-
-                            EndPoint = new VirtualPoint
-                            {
-                                Line = lt.Line,
-                                LineCharOffset = lt.Column + lt.Text.Length
-                            }
-                        };
                         return currentStatement;
                     }
+                }
+
+                if (IsCaretInsideStatement(statement, caret))
+                {
+                    return GetTextBlockFromStatement(statement);
                 }
             }
 
@@ -161,8 +220,8 @@ namespace Devvcat.SSMS
             }
             else
             {
-                var script = GetDocumentContent();
-                var caretPoint = GetCaretPosition();
+                var script = GetDocumentText();
+                var caretPoint = GetCaretPoint();
 
                 bool success = ParseSqlFragments(script, out TSqlScript sqlScript);
 
@@ -172,7 +231,7 @@ namespace Devvcat.SSMS
 
                     foreach (var batch in sqlScript?.Batches)
                     {
-                        currentStatement = FindCurrentStatement(batch.Statements, caretPoint);
+                        currentStatement = FindCurrentStatement(batch.Statements, caretPoint, scope);
 
                         if (currentStatement != null)
                         {
@@ -228,7 +287,7 @@ namespace Devvcat.SSMS
         internal enum ExecScope
         {
             Block,
-            Inline
+            Inner
         }
     }
 }

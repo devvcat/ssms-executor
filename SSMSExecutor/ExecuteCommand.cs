@@ -13,7 +13,7 @@ namespace Devvcat.SSMS
     sealed class ExecutorCommand
     {
         public const int ExecuteStatementCommandId = 0x0100;
-        public const int ExecuteInlineStatementCommandId = 0x0101;
+        public const int ExecuteInnerStatementCommandId = 0x0101;
 
         public static readonly Guid CommandSet = new Guid("746c2fb4-20a2-4d26-b95d-f8db97c16875");
 
@@ -36,8 +36,8 @@ namespace Devvcat.SSMS
                 menuCommand.BeforeQueryStatus += Command_QueryStatus;
                 commandService.AddCommand(menuCommand);
 
-                // Create execute inline satetement menu item
-                menuCommandID = new CommandID(CommandSet, ExecuteInlineStatementCommandId);
+                // Create execute inner satetement menu item
+                menuCommandID = new CommandID(CommandSet, ExecuteInnerStatementCommandId);
                 menuCommand = new OleMenuCommand(Command_Exec, menuCommandID);
                 menuCommand.BeforeQueryStatus += Command_QueryStatus;
                 commandService.AddCommand(menuCommand);
@@ -60,9 +60,9 @@ namespace Devvcat.SSMS
         private Executor.ExecScope GetScope(int commandId)
         {
             var scope = Executor.ExecScope.Block;
-            if (commandId == ExecuteInlineStatementCommandId)
+            if (commandId == ExecuteInnerStatementCommandId)
             {
-                scope = Executor.ExecScope.Inline;
+                scope = Executor.ExecScope.Inner;
             }
             return scope;
         }
