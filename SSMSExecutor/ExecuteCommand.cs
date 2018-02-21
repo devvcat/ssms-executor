@@ -76,7 +76,7 @@ namespace Devvcat.SSMS
 
                 if (dte.HasActiveDocument())
                 {
-                    menuCommand.Enabled = true;
+                    menuCommand.Enabled = dte.ActiveWindow.HWnd == dte.ActiveDocument.ActiveWindow.HWnd;
                     menuCommand.Supported = true;
                 }
             }
