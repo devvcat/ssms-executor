@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
+using EnvDTE;
+using EnvDTE80;
 using Microsoft.SqlServer.TransactSql.ScriptDom;
-//using Microsoft.Data.Schema.ScriptDom;
-//using Microsoft.Data.Schema.ScriptDom.Sql;
-
 
 namespace Devvcat.SSMS
 {
@@ -15,35 +11,31 @@ namespace Devvcat.SSMS
     {
         public readonly string CMD_QUERY_EXECUTE = "Query.Execute";
 
-        private EnvDTE.Document document;
+        private Document document;
 
-        private EnvDTE.EditPoint oldAnchor;
-        private EnvDTE.EditPoint oldActivePoint;
+        private EditPoint oldAnchor;
+        private EditPoint oldActivePoint;
 
-        public Executor(EnvDTE.Document document)
+        public Executor(DTE2 dte)
         {
-            this.document = document ?? throw new ArgumentNullException(nameof(document));
+            if (dte == null) throw new ArgumentNullException(nameof(dte));
 
-            var selection = (EnvDTE.TextSelection)this.document.Selection;
-            oldAnchor = selection.AnchorPoint.CreateEditPoint();
-            oldActivePoint = selection.ActivePoint.CreateEditPoint();
+            document = dte.GetDocument();
+
+            SaveActiveAndAnchorPoints();
         }
 
-        private CaretPosition GetCaretPosition()
+        private VirtualPoint GetCaretPosition()
         {
-            var anchor = ((EnvDTE.TextSelection)document.Selection).ActivePoint;
+            var p = ((TextSelection)document.Selection).ActivePoint;
 
-            return new CaretPosition
-            {
-                Line = anchor.Line,
-                LineCharOffset = anchor.LineCharOffset
-            };
+            return new VirtualPoint(p);
         }
 
         private string GetDocumentContent()
         {
             var content = string.Empty;
-            var selection = (EnvDTE.TextSelection)document.Selection;
+            var selection = (TextSelection)document.Selection;
 
             if (!selection.IsEmpty)
             {
@@ -51,25 +43,38 @@ namespace Devvcat.SSMS
             }
             else
             {
-                selection.SelectAll();
-                content = selection.Text;
-
-                // restore selection
-                selection.MoveToAbsoluteOffset(oldAnchor.AbsoluteCharOffset);
-                selection.SwapAnchor();
-                selection.MoveToAbsoluteOffset(oldActivePoint.AbsoluteCharOffset, true);
+                if (document.Object("TextDocument") is TextDocument doc)
+                {
+                    content = doc.StartPoint.CreateEditPoint().GetText(doc.EndPoint);
+                }
             }
 
             return content;
         }
 
-        private void MakeSelection(CaretPosition topPoint, CaretPosition bottomPoint)
+        private void SaveActiveAndAnchorPoints()
         {
-            var selection = (EnvDTE.TextSelection)document.Selection;
+            var selection = (TextSelection)document.Selection;
 
-            selection.MoveToLineAndOffset(topPoint.Line, topPoint.LineCharOffset);
+            oldAnchor = selection.AnchorPoint.CreateEditPoint();
+            oldActivePoint = selection.ActivePoint.CreateEditPoint();
+        }
+
+        private void RestoreActiveAndAnchorPoints()
+        {
+            var startPoint = new VirtualPoint(oldAnchor);
+            var endPoint = new VirtualPoint(oldActivePoint);
+
+            MakeSelection(startPoint, endPoint);
+        }
+
+        private void MakeSelection(VirtualPoint startPoint, VirtualPoint endPoint)
+        {
+            var selection = (TextSelection)document.Selection;
+
+            selection.MoveToLineAndOffset(startPoint.Line, startPoint.LineCharOffset);
             selection.SwapAnchor();
-            selection.MoveToLineAndOffset(bottomPoint.Line, bottomPoint.LineCharOffset, true);
+            selection.MoveToLineAndOffset(endPoint.Line, endPoint.LineCharOffset, true);
         }
 
         private bool ParseSqlFragments(string script, out TSqlScript sqlFragments)
@@ -85,7 +90,7 @@ namespace Devvcat.SSMS
             return errors.Count == 0;
         }
 
-        private CaretCurrentStatement FindCurrentStatement(IList<TSqlStatement> statements, CaretPosition caret)
+        private TextBlock FindCurrentStatement(IList<TSqlStatement> statements, VirtualPoint caret)
         {
             if (statements == null || statements.Count == 0) return null;
 
@@ -101,15 +106,15 @@ namespace Devvcat.SSMS
 
                     if (!(isBeforeFirstToken || isAfterLastToken))
                     {
-                        var currentStatement = new CaretCurrentStatement()
+                        var currentStatement = new TextBlock()
                         {
-                            FirstToken = new CaretPosition
+                            StartPoint = new VirtualPoint
                             {
                                 Line = ft.Line,
                                 LineCharOffset = ft.Column
                             },
 
-                            LastToken = new CaretPosition
+                            EndPoint = new VirtualPoint
                             {
                                 Line = lt.Line,
                                 LineCharOffset = lt.Column + lt.Text.Length
@@ -141,52 +146,50 @@ namespace Devvcat.SSMS
             return false;
         }
 
-        public void ExecuteCurrentStatement()
+        public void ExecuteStatement(ExecScope scope = ExecScope.Block)
         {
             if (!CanExecute())
             {
                 return;
             }
 
-            if (!(document.Selection as EnvDTE.TextSelection).IsEmpty)
+            SaveActiveAndAnchorPoints();
+
+            if (!(document.Selection as TextSelection).IsEmpty)
             {
                 Exec();
             }
             else
             {
-                var caret = GetCaretPosition();
                 var script = GetDocumentContent();
+                var caretPoint = GetCaretPosition();
 
-                CaretCurrentStatement currentStatement = null;
                 bool success = ParseSqlFragments(script, out TSqlScript sqlScript);
 
                 if (success)
                 {
+                    TextBlock currentStatement = null;
+
                     foreach (var batch in sqlScript?.Batches)
                     {
-                        currentStatement = FindCurrentStatement(batch.Statements, caret);
+                        currentStatement = FindCurrentStatement(batch.Statements, caretPoint);
 
                         if (currentStatement != null)
                         {
                             break;
                         }
                     }
-                }
 
-                if (success)
-                {
                     if (currentStatement != null)
                     {
                         // select the statement to be executed
-                        MakeSelection(currentStatement.FirstToken, currentStatement.LastToken);
+                        MakeSelection(currentStatement.StartPoint, currentStatement.EndPoint);
 
                         // execute the statement
                         Exec();
 
                         // restore selection
-                        MakeSelection(
-                            new CaretPosition { Line = oldAnchor.Line, LineCharOffset = oldAnchor.LineCharOffset },
-                            new CaretPosition { Line = oldActivePoint.Line, LineCharOffset = oldActivePoint.LineCharOffset });
+                        RestoreActiveAndAnchorPoints();
                     }
                 }
                 else
@@ -198,16 +201,34 @@ namespace Devvcat.SSMS
             }
         }
 
-        public class CaretPosition
+        public class VirtualPoint
         {
             public int Line { get; set; }
             public int LineCharOffset { get; set; }
+
+            public VirtualPoint()
+            {
+                Line = 1;
+                LineCharOffset = 0;
+            }
+
+            public VirtualPoint(EnvDTE.TextPoint point)
+            {
+                Line = point.Line;
+                LineCharOffset = point.LineCharOffset;
+            }
         }
 
-        public class CaretCurrentStatement
+        public class TextBlock
         {
-            public CaretPosition FirstToken { get; set; }
-            public CaretPosition LastToken { get; set; }
+            public VirtualPoint StartPoint { get; set; }
+            public VirtualPoint EndPoint { get; set; }
+        }
+
+        internal enum ExecScope
+        {
+            Block,
+            Inline
         }
     }
 }

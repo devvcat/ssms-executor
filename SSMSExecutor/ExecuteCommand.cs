@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel.Design;
-using System.Diagnostics;
 
 using EnvDTE;
 using EnvDTE80;
@@ -13,31 +12,35 @@ namespace Devvcat.SSMS
     /// </summary>
     sealed class ExecutorCommand
     {
-        public const int CommandId = 0x0100;
+        public const int ExecuteStatementCommandId = 0x0100;
+        public const int ExecuteInlineStatementCommandId = 0x0101;
+
         public static readonly Guid CommandSet = new Guid("746c2fb4-20a2-4d26-b95d-f8db97c16875");
 
         readonly Package package;
         readonly DTE2 dte;
 
-        private ExecutorCommand(Package package, DTE2 dte)
+        private ExecutorCommand(Package package)
         {
             this.package = package ?? throw new ArgumentNullException(nameof(package));
-            this.dte = dte;
+            this.dte = (DTE2)ServiceProvider.GetService(typeof(DTE));
 
             if (ServiceProvider.GetService(typeof(IMenuCommandService)) is OleMenuCommandService commandService)
             {
-                Trace.TraceInformation("Create the 'Executor' command.");
+                CommandID menuCommandID;
+                OleMenuCommand menuCommand;
 
-                var menuCommandID = new CommandID(CommandSet, CommandId);
-                var menuItem = new OleMenuCommand(Command_Exec, menuCommandID);
+                // Create execute current statement menu item
+                menuCommandID = new CommandID(CommandSet, ExecuteStatementCommandId);
+                menuCommand = new OleMenuCommand(Command_Exec, menuCommandID);
+                menuCommand.BeforeQueryStatus += Command_QueryStatus;
+                commandService.AddCommand(menuCommand);
 
-                menuItem.BeforeQueryStatus += Command_QueryStatus;
-
-                commandService.AddCommand(menuItem);
-            }
-            else
-            {
-                Trace.TraceWarning("Failed to find 'MenuCommandService'.");
+                // Create execute inline satetement menu item
+                menuCommandID = new CommandID(CommandSet, ExecuteInlineStatementCommandId);
+                menuCommand = new OleMenuCommand(Command_Exec, menuCommandID);
+                menuCommand.BeforeQueryStatus += Command_QueryStatus;
+                commandService.AddCommand(menuCommand);
             }
         }
 
@@ -49,21 +52,19 @@ namespace Devvcat.SSMS
             private set;
         }
 
-        public static void Initialize(Package package, DTE2 dte)
+        public static void Initialize(Package package)
         {
-            Trace.TraceInformation("Create 'ExecutorCommand' instance");
-            Instance = new ExecutorCommand(package, dte);
+            Instance = new ExecutorCommand(package);
         }
 
-        bool HasActiveDocument()
+        private Executor.ExecScope GetScope(int commandId)
         {
-            if (dte.ActiveDocument !=null)
+            var scope = Executor.ExecScope.Block;
+            if (commandId == ExecuteInlineStatementCommandId)
             {
-                var doc = (dte.ActiveDocument.DTE)?.ActiveDocument;
-                return doc != null;
+                scope = Executor.ExecScope.Inline;
             }
-
-            return false;
+            return scope;
         }
 
         private void Command_QueryStatus(object sender, EventArgs e)
@@ -83,13 +84,12 @@ namespace Devvcat.SSMS
 
         private void Command_Exec(object sender, EventArgs e)
         {
-            Document document = dte.GetDocument();
-
-            if (document != null)
+            if (sender is OleMenuCommand menuCommand)
             {
-                var executor = new Executor(document);
-                
-                executor.ExecuteCurrentStatement();
+                var executor = new Executor(dte);
+                var scope = GetScope(menuCommand.CommandID.ID);
+
+                executor.ExecuteStatement(scope);
             }
         }
     }

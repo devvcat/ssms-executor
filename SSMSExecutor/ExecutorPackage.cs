@@ -11,7 +11,6 @@ using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.Win32;
 using Devvcat.SSMS.Options;
 
-
 namespace Devvcat.SSMS
 {
     [PackageRegistration(UseManagedResourcesOnly = true)]
@@ -29,34 +28,13 @@ namespace Devvcat.SSMS
 
         public ExecutorPackage()
         {
-            var path = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "SSMSExecutor");
-
-            if (!Directory.Exists(path))
-            {
-                Directory.CreateDirectory(path);
-            }
-
-            Trace.Listeners.Clear();
-            Trace.Listeners.Add(new TextWriterTraceListener(Path.Combine(path, "log.txt")));
-
-#if DEBUG
-            Trace.Listeners.Add(new ConsoleTraceListener());
-#endif
-
-            Trace.AutoFlush = true;
-            Trace.TraceInformation("Entering constructor for {0}", ToString());
         }
 
         protected override void Initialize()
         {
             base.Initialize();
 
-            Trace.TraceInformation("Call 'ExecutorCommand.Initialize(...)'");
-
-            var service = (EnvDTE80.DTE2)GetService(typeof(EnvDTE.DTE));
-            ExecutorCommand.Initialize(this, service);
+            ExecutorCommand.Initialize(this);
         }
 
         protected override int QueryClose(out bool canClose)
@@ -76,11 +54,8 @@ namespace Devvcat.SSMS
                 registryKey.SetValue("SkipLoading", 1, RegistryValueKind.DWord);
                 registryKey.Close();
             }
-            catch (Exception ex)
-            {
-                Trace.TraceError(ex.Message);
-                if (ex.InnerException != null) Trace.TraceError(ex.InnerException.Message);
-            }
+            catch
+            { }
         }
     }
 }
