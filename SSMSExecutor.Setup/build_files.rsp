@@ -1,6 +1,6 @@
 SSMSExecutor\SSMSExecutor.dll
 SSMSExecutor\SSMSExecutor.dll.config
-SSMSExecutor\SSMSExecutor.SSMSExecutor.pkgdef
+SSMSExecutor\SSMSExecutor.pkgdef
 SSMSExecutor\extension.vsixmanifest
 SSMSExecutor\Microsoft.SqlServer.TransactSql.ScriptDom.dll
 SSMSExecutor\Resources\license.txt

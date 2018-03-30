@@ -1,7 +1,7 @@
 @echo off
 setlocal
 
-set APP_VERSION=2.0.4-alpha
+set APP_VERSION=2.0.2-alpha
 set VS_VERSION=2017
 set VS_PRODUCT=Community
 set VS_DEVCMD=C:\Program Files (x86)\Microsoft Visual Studio\%VS_VERSION%\%VS_PRODUCT%\Common7\Tools
@@ -23,7 +23,7 @@ cls
 msbuild /target:Clean,Rebuild /p:Configuration=Release,OutDir=%OUT_DIR% /nologo /ds ..\SSMSExecutor\SSMSExecutor.csproj
 copy build_files.rsp Temp\
 
-call ISCC.exe /O"Output\" /Qp Setup.iss
+call ISCC.exe /O"Output\" /Qp /DAppVersion=%APP_VERSION% Setup.iss
 
 pushd Temp
 call 7z.exe a -bt -bb3 SSMSExecutor-%APP_VERSION%.zip @build_files.rsp

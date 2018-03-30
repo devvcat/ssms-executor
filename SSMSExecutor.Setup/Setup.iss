@@ -1,6 +1,8 @@
-#define AppVersion      '2.0.2-alpha'
+#ifndef AppVersion
+#define AppVersion      '2.0.x-alpha'
+#endif
 
-#define SrcDir          'Temp\Bin'
+#define SrcDir          'Temp\SSMSExecutor'
 #define SsmsOutDir      'SSMSExecutor'
 #define SsmsPackageGuid '{{a64d9865-b938-4543-bf8f-a553cc4f67f3}'
 
