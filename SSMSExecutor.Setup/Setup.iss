@@ -34,15 +34,18 @@ Source: "Resources\license.txt"; DestDir: "{app}\Resources"
 Source: "SSMSExecutor.pkgdef"; DestDir: "{code:GetOutputDir|2014}"; Check: CanInstall(2014);
 Source: "SSMSExecutor.pkgdef"; DestDir: "{code:GetOutputDir|2016}"; Check: CanInstall(2016);
 Source: "SSMSExecutor.pkgdef"; DestDir: "{code:GetOutputDir|2017}"; Check: CanInstall(2017);
+Source: "SSMSExecutor.pkgdef"; DestDir: "{code:GetOutputDir|2019}"; Check: CanInstall(2019);
 
 Source: "extension.vsixmanifest"; DestDir: "{code:GetOutputDir|2014}"; Check: CanInstall(2014);
 Source: "extension.vsixmanifest"; DestDir: "{code:GetOutputDir|2016}"; Check: CanInstall(2016);
 Source: "extension.vsixmanifest"; DestDir: "{code:GetOutputDir|2017}"; Check: CanInstall(2017);
+Source: "extension.vsixmanifest"; DestDir: "{code:GetOutputDir|2019}"; Check: CanInstall(2019);
 
 [Ini]
 Filename: "{code:GetOutputDir|2014}\SSMSExecutor.pkgdef"; Check: CanInstall(2014); Section: "$RootKey$\Packages\{#SsmsPackageGuid}"; Key: """CodeBase"""; String: """{app}\SSMSExecutor.dll""";
 Filename: "{code:GetOutputDir|2016}\SSMSExecutor.pkgdef"; Check: CanInstall(2016); Section: "$RootKey$\Packages\{#SsmsPackageGuid}"; Key: """CodeBase"""; String: """{app}\SSMSExecutor.dll""";
 Filename: "{code:GetOutputDir|2017}\SSMSExecutor.pkgdef"; Check: CanInstall(2017); Section: "$RootKey$\Packages\{#SsmsPackageGuid}"; Key: """CodeBase"""; String: """{app}\SSMSExecutor.dll""";
+Filename: "{code:GetOutputDir|2019}\SSMSExecutor.pkgdef"; Check: CanInstall(2019); Section: "$RootKey$\Packages\{#SsmsPackageGuid}"; Key: """CodeBase"""; String: """{app}\SSMSExecutor.dll""";
 
 [Registry]
 Root: HKCU; Subkey: "{code:GetRegistryKey|2014}"; ValueType: dword; ValueName: "SkipLoading"; ValueData: 1; Check: CanInstall(2014);
@@ -51,6 +54,7 @@ Root: HKCU; Subkey: "{code:GetRegistryKey|2017}"; ValueType: dword; ValueName: "
 
 [Code]
 const
+  SSMS_2019 = 2019;
   SSMS_2017 = 2017;
   SSMS_2016 = 2016;
   SSMS_2014 = 2014;
@@ -79,18 +83,25 @@ begin
   Result:= '';
   if Version = SSMS_2014 then Result:= '12.0'
   else if Version = SSMS_2016 then Result:= '13.0'
-  else if Version = SSMS_2017 then Result:= '14.0';
+  else if Version = SSMS_2017 then Result:= '14.0'
+  else if Version = SSMS_2019 then Result:= '18.0_IsoShell';
 end;
 
 function GetSsmsInstallDir(const InternalVersion: String; var InstallDir: String): Boolean;
 var
   SubKeyName: String;
+  T: String;
 begin
   Result:= False;
   SubKeyName:= Format(SSMS_HKEY_CONFIG, [InternalVersion]);
 
   if RegQueryStringValue(HKEY_CURRENT_USER, SubKeyName, 'InstallDir', InstallDir) then
   begin
+    if (InternalVersion = '18.0_IsoShell') then
+    begin
+      InstallDir := InstallDir + '\Common7\IDE';
+    end;
+  
     if FileExists(InstallDir + '\Ssms.exe') then
     begin
       Result:= True;
@@ -169,7 +180,8 @@ begin
   SsmsArr:= [
     SSMS_2014,
     SSMS_2016,
-    SSMS_2017
+    SSMS_2017,
+	SSMS_2019
   ];
 
   // Loop through all supported SSMS versions

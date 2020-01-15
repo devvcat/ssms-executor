@@ -1,7 +1,7 @@
 @echo off
 setlocal
 
-set APP_VERSION=2.0.2-alpha
+set APP_VERSION=2.0.3-alpha
 set VS_VERSION=2017
 set VS_PRODUCT=Community
 set VS_DEVCMD=C:\Program Files (x86)\Microsoft Visual Studio\%VS_VERSION%\%VS_PRODUCT%\Common7\Tools
@@ -13,7 +13,7 @@ set PATH=%PATH%;%ZIP_DIR%
 set PATH=%PATH%;%INNO_COMPILER_DIR%
 
 rmdir /S /Q %OUT_DIR%
-del Temp\files.rsp
+del Temp\*.rsp
 
 pushd %VS_DEVCMD%
 call VsDevCmd.bat
