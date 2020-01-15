@@ -14,7 +14,7 @@ If your script contains multiple statements, position the cursor within the desi
 
 # Downloads/builds
 
-## SQL Server Management Studio (SSMS) 16.x and 17.x Extension
+## SQL Server Management Studio (SSMS) 16.x, 17.x and 18.x Extension
 
 You can download the extension from the [Releases section](https://github.com/devvcat/ssms-executor/releases)
 
